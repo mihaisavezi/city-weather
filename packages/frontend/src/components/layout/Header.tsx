@@ -16,18 +16,6 @@ export function Header() {
               >
                 Cities
               </Link>
-              <Link 
-                to="/cities/search" 
-                className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-              >
-                Search
-              </Link>
-              <Link 
-                to="/cities/add" 
-                className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-              >
-                Add City
-              </Link>
             </nav>
           </div>
         </div>

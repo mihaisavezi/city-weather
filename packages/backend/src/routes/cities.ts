@@ -307,7 +307,8 @@ router.delete('/:id', async (req, res) => {
  *         required: true
  *         schema:
  *           type: string
- *         description: City name to search for
+ *           minLength: 3
+ *         description: City name to search for (minimum 3 characters)
  *         example: New York
  *     responses:
  *       200:
@@ -340,6 +341,12 @@ router.delete('/:id', async (req, res) => {
  *                   success: false
  *                   error: "City name is required"
  *                   timestamp: "2023-01-01T00:00:00.000Z"
+ *               nameTooShort:
+ *                 summary: Name too short
+ *                 value:
+ *                   success: false
+ *                   error: "City name must be at least 3 characters long"
+ *                   timestamp: "2023-01-01T00:00:00.000Z"
  *       500:
  *         description: Server error during search
  *         content:
@@ -362,6 +369,15 @@ router.get('/search', async (req, res) => {
       return res.status(400).json({
         success: false,
         error: 'City name is required',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Only search when 3 or more characters are provided
+    if (name.length < 3) {
+      return res.status(400).json({
+        success: false,
+        error: 'City name must be at least 3 characters long',
         timestamp: new Date().toISOString()
       });
     }

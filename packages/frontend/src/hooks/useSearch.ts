@@ -20,7 +20,7 @@ export const useSearch = () => {
   const searchQuery = useQuery({
     queryKey: cityApi.queryKeys.search(debouncedSearchTerm),
     queryFn: () => cityApi.searchCities(debouncedSearchTerm),
-    enabled: debouncedSearchTerm.length > 0,
+    enabled: debouncedSearchTerm.length >= 3, // Only search when 3 or more characters are entered
   });
 
   return {

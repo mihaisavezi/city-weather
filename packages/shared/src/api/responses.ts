@@ -16,6 +16,23 @@ export const PaginatedResponseSchema = ApiResponseSchema.extend({
   })
 });
 
+export const PaginatedQuerySchema = z.object({
+  limit: z.number().int().positive().max(100).default(10),
+  cursor: z.string().optional()
+});
+
+export const CursorPaginatedResponseSchema = z.object({
+  success: z.boolean(),
+  data: z.object({
+    items: z.array(z.unknown()),
+    nextCursor: z.string().nullable(),
+    hasMore: z.boolean(),
+    count: z.number().int()
+  }),
+  error: z.string().optional(),
+  timestamp: z.string().datetime()
+});
+
 export type ApiResponse<T> = {
   success: boolean;
   data?: T;
@@ -30,6 +47,20 @@ export type PaginatedResponse<T> = {
     total: number;
     page: number;
     limit: number;
+  };
+  error?: string;
+  timestamp: string;
+};
+
+export type PaginatedQuery = z.infer<typeof PaginatedQuerySchema>;
+
+export type CursorPaginatedResponse<T> = {
+  success: boolean;
+  data: {
+    items: T[];
+    nextCursor: string | null;
+    hasMore: boolean;
+    count: number;
   };
   error?: string;
   timestamp: string;

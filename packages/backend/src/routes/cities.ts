@@ -1,12 +1,12 @@
-import { Router } from 'express';
-import { eq, like } from 'drizzle-orm';
+import { Router, type Request, type Response } from 'express';
+import { eq, like, gt, asc } from 'drizzle-orm';
 import { db } from '../db/db.js';
 import { cities } from '../db/schema.js';
 import { CreateCitySchema, UpdateCitySchema } from '@city-weather-deloitte/shared';
 import { getCountryInfo } from '../services/countryService.js';
 import { getWeatherInfo } from '../services/weatherService.js';
 
-const router = Router();
+const router: Router = Router();
 
 /**
  * @swagger
@@ -410,6 +410,220 @@ router.get('/search', async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Search failed',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+/**
+ * @swagger
+ * /api/cities:
+ *   get:
+ *     summary: Get all cities with cursor-based pagination
+ *     description: |
+ *       Returns a paginated list of all cities using cursor-based pagination 
+ *       for consistent results even when data is being modified.
+ *     tags: [Cities]
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Number of cities to return (max 100)
+ *         example: 20
+ *       - in: query
+ *         name: cursor
+ *         schema:
+ *           type: string
+ *         description: Cursor for pagination (ID of last item from previous page)
+ *         example: "cm123456789"
+ *     responses:
+ *       200:
+ *         description: Paginated list of cities
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: object
+ *                       properties:
+ *                         items:
+ *                           type: array
+ *                           items:
+ *                             $ref: '#/components/schemas/City'
+ *                         nextCursor:
+ *                           type: string
+ *                           nullable: true
+ *                         hasMore:
+ *                           type: boolean
+ *                         count:
+ *                           type: integer
+ *       400:
+ *         description: Invalid pagination parameters
+ */
+router.get('/', async (req, res) => {
+  try {
+    const { limit = 10, cursor } = req.query;
+    
+    // Validate limit parameter
+    const limitNum = parseInt(limit as string, 10);
+    if (isNaN(limitNum) || limitNum < 1 || limitNum > 100) {
+      return res.status(400).json({
+        success: false,
+        error: 'Limit must be between 1 and 100',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Build query with cursor condition
+    let query: any = db.select().from(cities);
+    
+    if (cursor && typeof cursor === 'string') {
+      query = query.where(gt(cities.id, cursor));
+    }
+    
+    // Fetch limit + 1 to determine if there are more pages
+    const results = await query
+      .orderBy(asc(cities.id))
+      .limit(limitNum + 1);
+
+    // Separate actual items from the extra item used for pagination check
+    const hasMore = results.length > limitNum;
+    const items = hasMore ? results.slice(0, limitNum) : results;
+    
+    // Next cursor is the ID of the last item, null if no more pages
+    const nextCursor = hasMore && items.length > 0 ? items[items.length - 1].id : null;
+
+    res.json({
+      success: true,
+      data: {
+        items,
+        nextCursor,
+        hasMore,
+        count: items.length
+      },
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error fetching cities:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch cities',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+/**
+ * @swagger
+ * /api/cities/{id}:
+ *   get:
+ *     summary: Get a city by ID
+ *     description: Retrieves a specific city by its ID and enriches it with country and weather data
+ *     tags: [Cities]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: City ID
+ *         example: cjld2cjxh0000qzrmn831i7rn
+ *     responses:
+ *       200:
+ *         description: City data with enriched information
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/CitySearchResult'
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *       404:
+ *         description: City not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ *             examples:
+ *               cityNotFound:
+ *                 summary: City not found
+ *                 value:
+ *                   success: false
+ *                   error: "City not found"
+ *                   timestamp: "2023-01-01T00:00:00.000Z"
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ *             examples:
+ *               fetchError:
+ *                 summary: Fetch failed
+ *                 value:
+ *                   success: false
+ *                   error: "Failed to fetch city"
+ *                   timestamp: "2023-01-01T00:00:00.000Z"
+ */
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Fetch the city by ID
+    const [city] = await db.select()
+      .from(cities)
+      .where(eq(cities.id, id));
+
+    if (!city) {
+      return res.status(404).json({
+        success: false,
+        error: 'City not found',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Enrich with external API data
+    const [countryInfo, weatherInfo] = await Promise.all([
+      getCountryInfo(city.country),
+      getWeatherInfo(city.name)
+    ]);
+
+    const enrichedCity = {
+      ...city,
+      countryCode2: countryInfo?.countryCode2 || '',
+      countryCode3: countryInfo?.countryCode3 || '',
+      currencyCode: countryInfo?.currencyCode || '',
+      weather: weatherInfo || {
+        temperature: 0,
+        description: 'Data unavailable',
+        humidity: 0,
+        windSpeed: 0
+      }
+    };
+
+    res.json({
+      success: true,
+      data: enrichedCity,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error fetching city:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch city',
       timestamp: new Date().toISOString()
     });
   }

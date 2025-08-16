@@ -3,9 +3,9 @@ import {
   UpdateCity, 
   City, 
   CitySearchResult, 
-  ApiResponse 
+  ApiResponse,
+  CursorPaginatedResponse
 } from '@city-weather-deloitte/shared';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 const API_BASE = '/api';
 
@@ -35,6 +35,8 @@ async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T
 // Query keys
 export const queryKeys = {
   cities: ['cities'] as const,
+  citiesPaginated: (params?: { limit?: number; cursor?: string }) => 
+    ['cities', 'paginated', params] as const,
   city: (id: string) => ['city', id] as const,
   search: (name: string) => ['cities', 'search', name] as const,
 };
@@ -70,14 +72,33 @@ export const cityApi = {
     return apiRequest(`/cities/search?name=`);
   },
   
-  getCityById: async (id: string): Promise<CitySearchResult> => {
-    // Using search with a specific ID to get a single city
-    const cities = await apiRequest(`/cities/search?name=`);
-    const city = cities.find((c: CitySearchResult) => c.id === id);
-    if (!city) {
-      throw new Error('City not found');
+  getAllCitiesPaginated: async (params?: { limit?: number; cursor?: string }): Promise<CursorPaginatedResponse<City>> => {
+    const searchParams = new URLSearchParams();
+    if (params?.limit) searchParams.set('limit', params.limit.toString());
+    if (params?.cursor) searchParams.set('cursor', params.cursor);
+    
+    const endpoint = `/cities${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+    const response = await fetch(`${API_BASE}${endpoint}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
     }
-    return city;
+
+    const data: CursorPaginatedResponse<City> = await response.json();
+    if (!data.success) {
+      throw new Error(data.error || 'API request failed');
+    }
+
+    return data;
+  },
+
+  getCityById: async (id: string): Promise<CitySearchResult> => {
+    return apiRequest(`/cities/${id}`);
   },
   
   queryKeys

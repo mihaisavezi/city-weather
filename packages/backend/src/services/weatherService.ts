@@ -30,7 +30,7 @@ export async function getWeatherInfo(cityName: string): Promise<WeatherInfo | nu
 
   try {
     const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(cityName)}&appid=${apiKey}&units=metric`
+      `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}&units=metric`
     );
     
     if (!response.ok) {

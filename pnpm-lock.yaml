@@ -41,6 +41,9 @@ importers:
       helmet:
         specifier: ^7.1.0
         version: 7.2.0
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
     devDependencies:
       '@types/better-sqlite3':
         specifier: ^7.6.7
@@ -107,7 +110,7 @@ importers:
   packages/shared:
     dependencies:
       zod:
-        specifier: ^3.22.0
+        specifier: ^3.25.76
         version: 3.25.76
     devDependencies:
       typescript:

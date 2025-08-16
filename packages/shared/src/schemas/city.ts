@@ -7,34 +7,38 @@ export const CreateCitySchema = z.object({
   country: z.string().min(1, 'Country is required'),
   touristRating: z.number().int().min(1).max(5),
   dateEstablished: z.string().datetime().or(z.date()),
-  estimatedPopulation: z.number().int().positive()
+  estimatedPopulation: z.number().int().positive(),
 });
 
 export const UpdateCitySchema = z.object({
   touristRating: z.number().int().min(1).max(5).optional(),
   dateEstablished: z.string().datetime().or(z.date()).optional(),
-  estimatedPopulation: z.number().int().positive().optional()
+  estimatedPopulation: z.number().int().positive().optional(),
 });
 
 export const CitySchema = CreateCitySchema.extend({
-  id: z.string().uuid()
+  id: z.string().uuid(),
 });
 
 // External API response schemas
 export const CountrySchema = z.object({
   cca2: z.string(), // 2-digit country code
   cca3: z.string(), // 3-digit country code
-  currencies: z.record(z.object({
-    name: z.string(),
-    symbol: z.string().optional()
-  })).optional()
+  currencies: z
+    .record(
+      z.object({
+        name: z.string(),
+        symbol: z.string().optional(),
+      })
+    )
+    .optional(),
 });
 
 export const WeatherSchema = z.object({
   temperature: z.number(),
   description: z.string(),
   humidity: z.number(),
-  windSpeed: z.number()
+  windSpeed: z.number(),
 });
 
 // Combined search response
@@ -42,7 +46,7 @@ export const CitySearchResultSchema = CitySchema.extend({
   countryCode2: z.string(),
   countryCode3: z.string(),
   currencyCode: z.string().optional(),
-  weather: WeatherSchema
+  weather: WeatherSchema,
 });
 
 // Type exports

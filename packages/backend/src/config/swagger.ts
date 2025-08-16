@@ -1,12 +1,13 @@
 import swaggerJsdoc from 'swagger-jsdoc';
 
 const options = {
-  definition: {
+  swaggerDefinition: {
     openapi: '3.0.0',
     info: {
       title: 'City Weather API',
       version: '1.0.0',
-      description: 'API for managing cities with integrated weather and country data',
+      description:
+        'API for managing cities with integrated weather and country data',
     },
     servers: [
       {
@@ -18,7 +19,14 @@ const options = {
       schemas: {
         CreateCity: {
           type: 'object',
-          required: ['name', 'state', 'country', 'touristRating', 'dateEstablished', 'estimatedPopulation'],
+          required: [
+            'name',
+            'state',
+            'country',
+            'touristRating',
+            'dateEstablished',
+            'estimatedPopulation',
+          ],
           properties: {
             name: {
               type: 'string',
@@ -46,7 +54,8 @@ const options = {
               type: 'string',
               format: 'date-time',
               example: '1625-01-01T00:00:00.000Z',
-              description: 'Date when the city was established (ISO 8601 format)',
+              description:
+                'Date when the city was established (ISO 8601 format)',
             },
             estimatedPopulation: {
               type: 'integer',
@@ -69,7 +78,8 @@ const options = {
               type: 'string',
               format: 'date-time',
               example: '1625-01-01T00:00:00.000Z',
-              description: 'Date when the city was established (ISO 8601 format)',
+              description:
+                'Date when the city was established (ISO 8601 format)',
             },
             estimatedPopulation: {
               type: 'integer',
@@ -123,7 +133,8 @@ const options = {
               type: 'string',
               format: 'date-time',
               example: '1625-01-01T00:00:00.000Z',
-              description: 'Date when the city was established (ISO 8601 format)',
+              description:
+                'Date when the city was established (ISO 8601 format)',
             },
             estimatedPopulation: {
               type: 'integer',
@@ -192,7 +203,8 @@ const options = {
               type: 'string',
               format: 'date-time',
               example: '1625-01-01T00:00:00.000Z',
-              description: 'Date when the city was established (ISO 8601 format)',
+              description:
+                'Date when the city was established (ISO 8601 format)',
             },
             estimatedPopulation: {
               type: 'integer',

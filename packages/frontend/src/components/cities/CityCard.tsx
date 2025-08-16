@@ -10,7 +10,9 @@ export function CityCard({ city }: CityCardProps) {
       <div className="flex justify-between items-start">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">{city.name}</h2>
-          <p className="text-lg text-gray-600">{city.state}, {city.country}</p>
+          <p className="text-lg text-gray-600">
+            {city.state}, {city.country}
+          </p>
         </div>
         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
           {city.touristRating}/5 ⭐
@@ -20,11 +22,15 @@ export function CityCard({ city }: CityCardProps) {
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* City Information */}
         <div className="bg-gray-50 p-4 rounded-lg">
-          <h3 className="text-lg font-medium text-gray-900 mb-3">City Information</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-3">
+            City Information
+          </h3>
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-gray-600">Population</span>
-              <span className="font-medium">{city.estimatedPopulation.toLocaleString()}</span>
+              <span className="font-medium">
+                {city.estimatedPopulation.toLocaleString()}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Established</span>
@@ -54,7 +60,9 @@ export function CityCard({ city }: CityCardProps) {
 
         {/* Weather Information */}
         <div className="bg-blue-50 p-4 rounded-lg">
-          <h3 className="text-lg font-medium text-gray-900 mb-3">Current Weather</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-3">
+            Current Weather
+          </h3>
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-gray-600">Temperature</span>
@@ -64,7 +72,9 @@ export function CityCard({ city }: CityCardProps) {
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Description</span>
-              <span className="font-medium capitalize">{city.weather.description}</span>
+              <span className="font-medium capitalize">
+                {city.weather.description}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Humidity</span>

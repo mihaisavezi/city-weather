@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
 import { CreateCity, UpdateCity } from '@city-weather-deloitte/shared';
+import { useNavigate } from '@tanstack/react-router';
+import { useState } from 'react';
+
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 
@@ -10,25 +11,32 @@ interface CityFormProps {
   isEditing?: boolean;
 }
 
-export function CityForm({ initialData, onSubmit, isEditing = false }: CityFormProps) {
+export function CityForm({
+  initialData,
+  onSubmit,
+  isEditing = false,
+}: CityFormProps) {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
     state: initialData?.state || '',
     country: initialData?.country || '',
     touristRating: initialData?.touristRating?.toString() || '3',
-    dateEstablished: initialData?.dateEstablished?.toString().split('T')[0] || '',
+    dateEstablished:
+      initialData?.dateEstablished?.toString().split('T')[0] || '',
     estimatedPopulation: initialData?.estimatedPopulation?.toString() || '',
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const cityData = {
       name: formData.name,
       state: formData.state,
@@ -47,11 +55,14 @@ export function CityForm({ initialData, onSubmit, isEditing = false }: CityFormP
       <h2 className="text-2xl font-bold text-gray-900 mb-6">
         {isEditing ? 'Edit City' : 'Add New City'}
       </h2>
-      
+
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700"
+            >
               City Name
             </label>
             <Input
@@ -63,9 +74,12 @@ export function CityForm({ initialData, onSubmit, isEditing = false }: CityFormP
               required
             />
           </div>
-          
+
           <div>
-            <label htmlFor="state" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="state"
+              className="block text-sm font-medium text-gray-700"
+            >
               State
             </label>
             <Input
@@ -77,9 +91,12 @@ export function CityForm({ initialData, onSubmit, isEditing = false }: CityFormP
               required
             />
           </div>
-          
+
           <div>
-            <label htmlFor="country" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="country"
+              className="block text-sm font-medium text-gray-700"
+            >
               Country
             </label>
             <Input
@@ -91,9 +108,12 @@ export function CityForm({ initialData, onSubmit, isEditing = false }: CityFormP
               required
             />
           </div>
-          
+
           <div>
-            <label htmlFor="touristRating" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="touristRating"
+              className="block text-sm font-medium text-gray-700"
+            >
               Tourist Rating
             </label>
             <select
@@ -110,9 +130,12 @@ export function CityForm({ initialData, onSubmit, isEditing = false }: CityFormP
               ))}
             </select>
           </div>
-          
+
           <div>
-            <label htmlFor="dateEstablished" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="dateEstablished"
+              className="block text-sm font-medium text-gray-700"
+            >
               Date Established
             </label>
             <Input
@@ -124,9 +147,12 @@ export function CityForm({ initialData, onSubmit, isEditing = false }: CityFormP
               required
             />
           </div>
-          
+
           <div>
-            <label htmlFor="estimatedPopulation" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="estimatedPopulation"
+              className="block text-sm font-medium text-gray-700"
+            >
               Estimated Population
             </label>
             <Input
@@ -140,10 +166,10 @@ export function CityForm({ initialData, onSubmit, isEditing = false }: CityFormP
             />
           </div>
         </div>
-        
+
         <div className="flex justify-end space-x-3">
-          <Button 
-            type="button" 
+          <Button
+            type="button"
             variant="secondary"
             onClick={() => navigate({ to: '/cities' })}
           >

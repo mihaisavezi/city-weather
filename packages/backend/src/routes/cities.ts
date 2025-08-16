@@ -1,8 +1,12 @@
-import { Router, type Request, type Response } from 'express';
+import {
+  CreateCitySchema,
+  UpdateCitySchema,
+} from '@city-weather-deloitte/shared';
 import { eq, like, gt, asc } from 'drizzle-orm';
+import { Router } from 'express';
+
 import { db } from '../db/db.js';
 import { cities } from '../db/schema.js';
-import { CreateCitySchema, UpdateCitySchema } from '@city-weather-deloitte/shared';
 import { getCountryInfo } from '../services/countryService.js';
 import { getWeatherInfo } from '../services/weatherService.js';
 
@@ -61,28 +65,32 @@ const router: Router = Router();
 router.post('/', async (req, res) => {
   try {
     const cityData = CreateCitySchema.parse(req.body);
-    
-    const [newCity] = await db.insert(cities).values({
-      name: cityData.name,
-      state: cityData.state,
-      country: cityData.country,
-      touristRating: cityData.touristRating,
-      dateEstablished: typeof cityData.dateEstablished === 'string' 
-        ? cityData.dateEstablished 
-        : cityData.dateEstablished.toISOString(),
-      estimatedPopulation: cityData.estimatedPopulation
-    }).returning();
+
+    const [newCity] = await db
+      .insert(cities)
+      .values({
+        name: cityData.name,
+        state: cityData.state,
+        country: cityData.country,
+        touristRating: cityData.touristRating,
+        dateEstablished:
+          typeof cityData.dateEstablished === 'string'
+            ? cityData.dateEstablished
+            : cityData.dateEstablished.toISOString(),
+        estimatedPopulation: cityData.estimatedPopulation,
+      })
+      .returning();
 
     res.status(201).json({
       success: true,
       data: newCity,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   } catch (error) {
     res.status(400).json({
       success: false,
       error: error instanceof Error ? error.message : 'Invalid data',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 });
@@ -158,24 +166,26 @@ router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = UpdateCitySchema.parse(req.body);
-    
+
     const updatePayload: any = {
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
-    
+
     if (updateData.touristRating !== undefined) {
       updatePayload.touristRating = updateData.touristRating;
     }
     if (updateData.dateEstablished !== undefined) {
-      updatePayload.dateEstablished = typeof updateData.dateEstablished === 'string' 
-        ? updateData.dateEstablished 
-        : updateData.dateEstablished.toISOString();
+      updatePayload.dateEstablished =
+        typeof updateData.dateEstablished === 'string'
+          ? updateData.dateEstablished
+          : updateData.dateEstablished.toISOString();
     }
     if (updateData.estimatedPopulation !== undefined) {
       updatePayload.estimatedPopulation = updateData.estimatedPopulation;
     }
 
-    const [updatedCity] = await db.update(cities)
+    const [updatedCity] = await db
+      .update(cities)
       .set(updatePayload)
       .where(eq(cities.id, id))
       .returning();
@@ -184,20 +194,20 @@ router.put('/:id', async (req, res) => {
       return res.status(404).json({
         success: false,
         error: 'City not found',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
 
     res.json({
       success: true,
       data: updatedCity,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   } catch (error) {
     res.status(400).json({
       success: false,
       error: error instanceof Error ? error.message : 'Invalid data',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 });
@@ -267,8 +277,9 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    
-    const [deletedCity] = await db.delete(cities)
+
+    const [deletedCity] = await db
+      .delete(cities)
       .where(eq(cities.id, id))
       .returning();
 
@@ -276,20 +287,20 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({
         success: false,
         error: 'City not found',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
 
     res.json({
       success: true,
       data: { id: deletedCity.id },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   } catch (error) {
     res.status(500).json({
       success: false,
       error: 'Failed to delete city',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 });
@@ -364,12 +375,12 @@ router.delete('/:id', async (req, res) => {
 router.get('/search', async (req, res) => {
   try {
     const { name } = req.query;
-    
+
     if (!name || typeof name !== 'string') {
       return res.status(400).json({
         success: false,
         error: 'City name is required',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
 
@@ -378,11 +389,12 @@ router.get('/search', async (req, res) => {
       return res.status(400).json({
         success: false,
         error: 'City name must be at least 3 characters long',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
 
-    const foundCities = await db.select()
+    const foundCities = await db
+      .select()
       .from(cities)
       .where(like(cities.name, `%${name}%`));
 
@@ -390,16 +402,16 @@ router.get('/search', async (req, res) => {
       return res.json({
         success: true,
         data: [],
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
 
     // Enrich with external API data
     const enrichedCities = await Promise.all(
-      foundCities.map(async (city) => {
+      foundCities.map(async city => {
         const [countryInfo, weatherInfo] = await Promise.all([
           getCountryInfo(city.country),
-          getWeatherInfo(city.name)
+          getWeatherInfo(city.name),
         ]);
 
         return {
@@ -411,8 +423,8 @@ router.get('/search', async (req, res) => {
             temperature: 0,
             description: 'Data unavailable',
             humidity: 0,
-            windSpeed: 0
-          }
+            windSpeed: 0,
+          },
         };
       })
     );
@@ -420,13 +432,13 @@ router.get('/search', async (req, res) => {
     res.json({
       success: true,
       data: enrichedCities,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   } catch (error) {
     res.status(500).json({
       success: false,
       error: 'Search failed',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 });
@@ -437,7 +449,7 @@ router.get('/search', async (req, res) => {
  *   get:
  *     summary: Get all cities with cursor-based pagination
  *     description: |
- *       Returns a paginated list of all cities using cursor-based pagination 
+ *       Returns a paginated list of all cities using cursor-based pagination
  *       for consistent results even when data is being modified.
  *     tags: [Cities]
  *     parameters:
@@ -486,35 +498,34 @@ router.get('/search', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const { limit = 10, cursor } = req.query;
-    
+
     // Validate limit parameter
     const limitNum = parseInt(limit as string, 10);
     if (isNaN(limitNum) || limitNum < 1 || limitNum > 100) {
       return res.status(400).json({
         success: false,
         error: 'Limit must be between 1 and 100',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
 
     // Build query with cursor condition
     let query: any = db.select().from(cities);
-    
+
     if (cursor && typeof cursor === 'string') {
       query = query.where(gt(cities.id, cursor));
     }
-    
+
     // Fetch limit + 1 to determine if there are more pages
-    const results = await query
-      .orderBy(asc(cities.id))
-      .limit(limitNum + 1);
+    const results = await query.orderBy(asc(cities.id)).limit(limitNum + 1);
 
     // Separate actual items from the extra item used for pagination check
     const hasMore = results.length > limitNum;
     const items = hasMore ? results.slice(0, limitNum) : results;
-    
+
     // Next cursor is the ID of the last item, null if no more pages
-    const nextCursor = hasMore && items.length > 0 ? items[items.length - 1].id : null;
+    const nextCursor =
+      hasMore && items.length > 0 ? items[items.length - 1].id : null;
 
     res.json({
       success: true,
@@ -522,16 +533,16 @@ router.get('/', async (req, res) => {
         items,
         nextCursor,
         hasMore,
-        count: items.length
+        count: items.length,
       },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   } catch (error) {
     console.error('Error fetching cities:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch cities',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 });
@@ -597,24 +608,22 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     // Fetch the city by ID
-    const [city] = await db.select()
-      .from(cities)
-      .where(eq(cities.id, id));
+    const [city] = await db.select().from(cities).where(eq(cities.id, id));
 
     if (!city) {
       return res.status(404).json({
         success: false,
         error: 'City not found',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
 
     // Enrich with external API data
     const [countryInfo, weatherInfo] = await Promise.all([
       getCountryInfo(city.country),
-      getWeatherInfo(city.name)
+      getWeatherInfo(city.name),
     ]);
 
     const enrichedCity = {
@@ -626,21 +635,21 @@ router.get('/:id', async (req, res) => {
         temperature: 0,
         description: 'Data unavailable',
         humidity: 0,
-        windSpeed: 0
-      }
+        windSpeed: 0,
+      },
     };
 
     res.json({
       success: true,
       data: enrichedCity,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   } catch (error) {
     console.error('Error fetching city:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch city',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 });

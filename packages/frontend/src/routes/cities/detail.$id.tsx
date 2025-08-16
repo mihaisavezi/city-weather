@@ -1,8 +1,9 @@
-import { createFileRoute } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
-import { cityApi } from '@/services/cityApi';
+import { createFileRoute } from '@tanstack/react-router';
+
 import { CityCard } from '@/components/cities/CityCard';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { cityApi } from '@/services/cityApi';
 
 export const Route = createFileRoute('/cities/detail/$id')({
   component: CityDetail,
@@ -10,16 +11,20 @@ export const Route = createFileRoute('/cities/detail/$id')({
 
 function CityDetail() {
   const { id } = Route.useParams();
-  
+
   // Fetch the actual city data
-  const { data: city, isLoading, error } = useQuery({
+  const {
+    data: city,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: cityApi.queryKeys.city(id),
     queryFn: () => cityApi.getCityById(id),
-    enabled: !!id
+    enabled: !!id,
   });
 
   if (isLoading) return <LoadingSpinner />;
-  
+
   if (error) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-md p-4 text-red-700">

@@ -4,7 +4,7 @@ export const ApiResponseSchema = z.object({
   success: z.boolean(),
   data: z.unknown().optional(),
   error: z.string().optional(),
-  timestamp: z.string().datetime()
+  timestamp: z.string().datetime(),
 });
 
 export const PaginatedResponseSchema = ApiResponseSchema.extend({
@@ -12,13 +12,13 @@ export const PaginatedResponseSchema = ApiResponseSchema.extend({
     items: z.array(z.unknown()),
     total: z.number(),
     page: z.number(),
-    limit: z.number()
-  })
+    limit: z.number(),
+  }),
 });
 
 export const PaginatedQuerySchema = z.object({
   limit: z.number().int().positive().max(100).default(10),
-  cursor: z.string().optional()
+  cursor: z.string().optional(),
 });
 
 export const CursorPaginatedResponseSchema = z.object({
@@ -27,10 +27,10 @@ export const CursorPaginatedResponseSchema = z.object({
     items: z.array(z.unknown()),
     nextCursor: z.string().nullable(),
     hasMore: z.boolean(),
-    count: z.number().int()
+    count: z.number().int(),
   }),
   error: z.string().optional(),
-  timestamp: z.string().datetime()
+  timestamp: z.string().datetime(),
 });
 
 export type ApiResponse<T> = {

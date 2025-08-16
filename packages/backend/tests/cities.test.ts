@@ -1,6 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import request from 'supertest';
 import express from 'express';
+import request from 'supertest';
+import { describe, it, expect, beforeEach } from 'vitest';
+
 import cityRoutes from '../src/routes/cities.js';
 
 const app = express();
@@ -20,7 +21,7 @@ describe('Cities API', () => {
       country: 'Test Country',
       touristRating: 4,
       dateEstablished: '2020-01-01T00:00:00.000Z',
-      estimatedPopulation: 100000
+      estimatedPopulation: 100000,
     };
 
     const response = await request(app)
@@ -36,7 +37,7 @@ describe('Cities API', () => {
   it('should validate required fields', async () => {
     const invalidData = {
       name: '', // Invalid empty name
-      state: 'Test State'
+      state: 'Test State',
     };
 
     const response = await request(app)
@@ -57,7 +58,7 @@ describe('Cities API', () => {
         country: 'Test Country 1',
         touristRating: 4,
         dateEstablished: '2020-01-01T00:00:00.000Z',
-        estimatedPopulation: 100000
+        estimatedPopulation: 100000,
       },
       {
         name: 'Test City 2',
@@ -65,22 +66,17 @@ describe('Cities API', () => {
         country: 'Test Country 2',
         touristRating: 3,
         dateEstablished: '2021-01-01T00:00:00.000Z',
-        estimatedPopulation: 200000
-      }
+        estimatedPopulation: 200000,
+      },
     ];
 
     // Create the cities
     for (const cityData of cities) {
-      await request(app)
-        .post('/api/cities')
-        .send(cityData)
-        .expect(201);
+      await request(app).post('/api/cities').send(cityData).expect(201);
     }
 
     // Test pagination endpoint
-    const response = await request(app)
-      .get('/api/cities?limit=10')
-      .expect(200);
+    const response = await request(app).get('/api/cities?limit=10').expect(200);
 
     expect(response.body.success).toBe(true);
     expect(response.body.data.items).toBeDefined();

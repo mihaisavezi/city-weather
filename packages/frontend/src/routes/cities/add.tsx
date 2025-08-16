@@ -1,7 +1,8 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { cityApi } from '@/services/cityApi';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+
 import { CityForm } from '@/components/cities/CityForm';
+import { cityApi } from '@/services/cityApi';
 
 export const Route = createFileRoute('/cities/add')({
   component: AddCity,
@@ -10,7 +11,7 @@ export const Route = createFileRoute('/cities/add')({
 function AddCity() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  
+
   const mutation = useMutation({
     mutationFn: cityApi.createCity,
     onSuccess: () => {
@@ -32,9 +33,7 @@ function AddCity() {
           Error: {mutation.error.message}
         </div>
       )}
-      <CityForm 
-        onSubmit={handleSubmit}
-      />
+      <CityForm onSubmit={handleSubmit} />
     </div>
   );
 }

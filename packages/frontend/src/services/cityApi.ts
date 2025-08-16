@@ -1,16 +1,19 @@
-import { 
-  CreateCity, 
-  UpdateCity, 
-  City, 
-  CitySearchResult, 
+import {
+  CreateCity,
+  UpdateCity,
+  City,
+  CitySearchResult,
   ApiResponse,
-  CursorPaginatedResponse
+  CursorPaginatedResponse,
 } from '@city-weather-deloitte/shared';
 
 const API_BASE = '/api';
 
 // HTTP client wrapper
-async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T> {
+async function apiRequest<T>(
+  endpoint: string,
+  options?: RequestInit
+): Promise<T> {
   const response = await fetch(`${API_BASE}${endpoint}`, {
     headers: {
       'Content-Type': 'application/json',
@@ -35,7 +38,7 @@ async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T
 // Query keys
 export const queryKeys = {
   cities: ['cities'] as const,
-  citiesPaginated: (params?: { limit?: number; cursor?: string }) => 
+  citiesPaginated: (params?: { limit?: number; cursor?: string }) =>
     ['cities', 'paginated', params] as const,
   city: (id: string) => ['city', id] as const,
   search: (name: string) => ['cities', 'search', name] as const,
@@ -71,12 +74,15 @@ export const cityApi = {
     // Using search with empty string to get all cities
     return apiRequest(`/cities/search?name=`);
   },
-  
-  getAllCitiesPaginated: async (params?: { limit?: number; cursor?: string }): Promise<CursorPaginatedResponse<City>> => {
+
+  getAllCitiesPaginated: async (params?: {
+    limit?: number;
+    cursor?: string;
+  }): Promise<CursorPaginatedResponse<City>> => {
     const searchParams = new URLSearchParams();
     if (params?.limit) searchParams.set('limit', params.limit.toString());
     if (params?.cursor) searchParams.set('cursor', params.cursor);
-    
+
     const endpoint = `/cities${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
     const response = await fetch(`${API_BASE}${endpoint}`, {
       headers: {
@@ -100,6 +106,6 @@ export const cityApi = {
   getCityById: async (id: string): Promise<CitySearchResult> => {
     return apiRequest(`/cities/${id}`);
   },
-  
-  queryKeys
+
+  queryKeys,
 };

@@ -1,10 +1,11 @@
-import express from 'express';
 import cors from 'cors';
-import helmet from 'helmet';
 import dotenv from 'dotenv';
-import cityRoutes from './routes/cities.js';
+import express from 'express';
+import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
+
 import swaggerSpec from './config/swagger.js';
+import cityRoutes from './routes/cities.js';
 
 // Load environment variables
 dotenv.config();
@@ -18,14 +19,18 @@ app.use(cors());
 app.use(express.json());
 
 // Swagger UI
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-  explorer: true,
-  swaggerOptions: {
-    deepLinking: false
-  },
-  customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: "City Weather API Documentation"
-}));
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, {
+    explorer: true,
+    swaggerOptions: {
+      deepLinking: false,
+    },
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'City Weather API Documentation',
+  })
+);
 
 // Routes
 app.use('/api/cities', cityRoutes);
@@ -43,5 +48,7 @@ app.get('/api-docs.json', (req, res) => {
 
 app.listen(port, () => {
   console.log(` Server running on port ${port}`);
-  console.log(` API Documentation available at http://localhost:${port}/api-docs`);
+  console.log(
+    ` API Documentation available at http://localhost:${port}/api-docs`
+  );
 });

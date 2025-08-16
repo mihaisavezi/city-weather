@@ -1,4 +1,5 @@
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
+
 import { db } from './db.js';
 
 async function runMigrations() {
@@ -8,7 +9,7 @@ async function runMigrations() {
   process.exit(0);
 }
 
-runMigrations().catch((err) => {
+runMigrations().catch(err => {
   console.error('Migration failed:', err);
   process.exit(1);
 });

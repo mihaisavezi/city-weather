@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { cityApi } from '@/services/cityApi';
 import { useState, useEffect } from 'react';
+
+import { cityApi } from '@/services/cityApi';
 
 export const useSearch = () => {
   const [searchTerm, setSearchTerm] = useState('');

@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { cityApi } from '@/services/cityApi';
 
 export const useCities = () => {
@@ -21,7 +22,7 @@ export const useCities = () => {
   });
 
   const updateCityMutation = useMutation({
-    mutationFn: ({ id, updates }: { id: string; updates: any }) => 
+    mutationFn: ({ id, updates }: { id: string; updates: any }) =>
       cityApi.updateCity(id, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: cityApi.queryKeys.cities });

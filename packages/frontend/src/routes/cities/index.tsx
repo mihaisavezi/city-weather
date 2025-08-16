@@ -1,10 +1,14 @@
+import type {
+  City,
+  CursorPaginatedResponse,
+} from '@city-weather-deloitte/shared';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { cityApi, queryKeys } from '@/services/cityApi';
+
 import { CityTable } from '@/components/cities/CityTable';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import type { City, CursorPaginatedResponse, CitySearchResult } from '@city-weather-deloitte/shared';
+import { cityApi, queryKeys } from '@/services/cityApi';
 
 export const Route = createFileRoute('/cities/')({
   component: CitiesList,
@@ -16,22 +20,33 @@ function CitiesList() {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
   const queryClient = useQueryClient();
-  
+
   // Debounced search term
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
-  
+
   // Existing query for all cities (paginated)
   const { data, isLoading, error, isFetching } = useQuery<
     CursorPaginatedResponse<City>,
     Error
   >({
-    queryKey: queryKeys.citiesPaginated({ limit: 20, cursor: currentCursor || undefined }),
-    queryFn: () => cityApi.getAllCitiesPaginated({ limit: 20, cursor: currentCursor || undefined }),
+    queryKey: queryKeys.citiesPaginated({
+      limit: 20,
+      cursor: currentCursor || undefined,
+    }),
+    queryFn: () =>
+      cityApi.getAllCitiesPaginated({
+        limit: 20,
+        cursor: currentCursor || undefined,
+      }),
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   // New query for search results (debounced)
-  const { data: searchResults, isLoading: isSearchLoading, error: searchError } = useQuery({
+  const {
+    data: searchResults,
+    isLoading: isSearchLoading,
+    error: searchError,
+  } = useQuery({
     queryKey: queryKeys.search(debouncedSearchTerm),
     queryFn: () => cityApi.searchCities(debouncedSearchTerm),
     enabled: debouncedSearchTerm.length >= 3, // Only search when 3 or more characters are entered
@@ -69,8 +84,8 @@ function CitiesList() {
   const refresh = () => {
     setCurrentCursor(null);
     setAllCities([]);
-    queryClient.invalidateQueries({ 
-      queryKey: [...queryKeys.citiesPaginated({ limit: 20 })] 
+    queryClient.invalidateQueries({
+      queryKey: [...queryKeys.citiesPaginated({ limit: 20 })],
     });
   };
 
@@ -81,8 +96,8 @@ function CitiesList() {
   };
 
   // Determine which data to display - search results or all cities
-  const displayData = currentCursor ? allCities : (data?.data.items || []);
-  
+  const displayData = currentCursor ? allCities : data?.data.items || [];
+
   if (isLoading && !currentCursor && allCities.length === 0) {
     return <LoadingSpinner />;
   }
@@ -92,10 +107,7 @@ function CitiesList() {
       <div className="bg-red-50 border border-red-200 rounded-md p-4 text-red-700">
         <div className="flex justify-between items-center">
           <span>Error: {error.message}</span>
-          <button 
-            onClick={refresh}
-            className="btn-secondary"
-          >
+          <button onClick={refresh} className="btn-secondary">
             Retry
           </button>
         </div>
@@ -113,16 +125,10 @@ function CitiesList() {
           </p>
         </div>
         <div className="flex space-x-2">
-          <button 
-            onClick={refresh}
-            className="btn-secondary"
-          >
+          <button onClick={refresh} className="btn-secondary">
             Refresh
           </button>
-          <Link 
-            to="/cities/add" 
-            className="btn-primary"
-          >
+          <Link to="/cities/add" className="btn-primary">
             Add City
           </Link>
         </div>
@@ -130,7 +136,10 @@ function CitiesList() {
 
       {/* Search Bar with Autocomplete */}
       <div className="mb-36">
-        <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
+        <label
+          htmlFor="search"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
           Search Cities
         </label>
         <div className="relative">
@@ -138,13 +147,13 @@ function CitiesList() {
             type="text"
             id="search"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={e => setSearchTerm(e.target.value)}
             onFocus={() => setSearchFocused(true)}
             onBlur={() => setTimeout(() => setSearchFocused(false), 150)} // Delay to allow click on results
             placeholder="Enter city name (3+ characters)..."
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          
+
           {/* Floating search results dropdown */}
           {searchFocused && debouncedSearchTerm.length >= 3 && (
             <div className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md overflow-hidden">
@@ -158,8 +167,8 @@ function CitiesList() {
                 </div>
               ) : searchResults && searchResults.length > 0 ? (
                 <div className="max-h-60 overflow-y-auto">
-                  {searchResults.map((city) => (
-                    <div 
+                  {searchResults.map(city => (
+                    <div
                       key={city.id}
                       className="p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
                       onMouseDown={() => {
@@ -183,7 +192,9 @@ function CitiesList() {
                         </div>
                       )}
                       <div className="mt-1 flex text-xs text-gray-500">
-                        <span className="mr-3">Humidity: {city.weather?.humidity}%</span>
+                        <span className="mr-3">
+                          Humidity: {city.weather?.humidity}%
+                        </span>
                         <span>Wind: {city.weather?.windSpeed} m/s</span>
                       </div>
                     </div>
@@ -196,34 +207,36 @@ function CitiesList() {
               ) : null}
             </div>
           )}
-          
+
           {/* Show hint when search term is less than 3 characters */}
-          {searchFocused && debouncedSearchTerm.length > 0 && debouncedSearchTerm.length < 3 && (
-            <div className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md overflow-hidden">
-              <div className="p-4 text-gray-500 text-center">
-                Please enter at least 3 characters to search
+          {searchFocused &&
+            debouncedSearchTerm.length > 0 &&
+            debouncedSearchTerm.length < 3 && (
+              <div className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md overflow-hidden">
+                <div className="p-4 text-gray-500 text-center">
+                  Please enter at least 3 characters to search
+                </div>
               </div>
-            </div>
-          )}
+            )}
         </div>
       </div>
 
       {/* List of all cities (always shown) */}
       {displayData.length > 0 ? (
         <>
-          <CityTable 
-            cities={displayData} 
+          <CityTable
+            cities={displayData}
             showWeather={false}
-            onEdit={(city) => {
+            onEdit={city => {
               // Navigate to edit page - implement based on your routing setup
               window.location.href = `/cities/edit/${city.id}`;
             }}
             onDelete={handleDelete}
           />
-          
+
           {data?.data.hasMore && (
             <div className="mt-4 text-center">
-              <button 
+              <button
                 onClick={loadMore}
                 disabled={isFetching}
                 className="btn-primary"
@@ -232,7 +245,7 @@ function CitiesList() {
               </button>
             </div>
           )}
-          
+
           {data && !data.data.hasMore && displayData.length > 0 && (
             <div className="mt-4 text-center text-gray-500">
               All cities loaded ({displayData.length} total)

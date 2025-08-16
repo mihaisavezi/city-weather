@@ -5,8 +5,8 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "pnpm -r build",
-    "dev": "pnpm -r --parallel dev",
+    "build": "pnpm --filter @city-weather-deloitte/shared build && pnpm -r --parallel build",
+    "dev": "pnpm --filter @city-weather-deloitte/backend db:seed && pnpm -r --parallel dev",
     "test": "pnpm -r test",
     "clean": "pnpm -r clean"
   },

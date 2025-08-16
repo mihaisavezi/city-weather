@@ -8,7 +8,56 @@ import { getWeatherInfo } from '../services/weatherService.js';
 
 const router = Router();
 
-// Add City
+/**
+ * @swagger
+ * /api/cities:
+ *   post:
+ *     summary: Add a new city
+ *     description: Creates a new city record in the database
+ *     tags: [Cities]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateCity'
+ *           example:
+ *             name: "New York"
+ *             state: "New York"
+ *             country: "United States"
+ *             touristRating: 4
+ *             dateEstablished: "1625-01-01T00:00:00.000Z"
+ *             estimatedPopulation: 8419000
+ *     responses:
+ *       201:
+ *         description: City created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/City'
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ *             examples:
+ *               validationError:
+ *                 summary: Validation error
+ *                 value:
+ *                   success: false
+ *                   error: "Invalid data"
+ *                   timestamp: "2023-01-01T00:00:00.000Z"
+ */
 router.post('/', async (req, res) => {
   try {
     const cityData = CreateCitySchema.parse(req.body);
@@ -38,7 +87,73 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Update City
+/**
+ * @swagger
+ * /api/cities/{id}:
+ *   put:
+ *     summary: Update an existing city
+ *     description: Updates a city record by its ID
+ *     tags: [Cities]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: City ID
+ *         example: cjld2cjxh0000qzrmn831i7rn
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateCity'
+ *           example:
+ *             touristRating: 5
+ *             estimatedPopulation: 8500000
+ *     responses:
+ *       200:
+ *         description: City updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/City'
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ *             examples:
+ *               validationError:
+ *                 summary: Validation error
+ *                 value:
+ *                   success: false
+ *                   error: "Invalid data"
+ *                   timestamp: "2023-01-01T00:00:00.000Z"
+ *       404:
+ *         description: City not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ *             examples:
+ *               cityNotFound:
+ *                 summary: City not found
+ *                 value:
+ *                   success: false
+ *                   error: "City not found"
+ *                   timestamp: "2023-01-01T00:00:00.000Z"
+ */
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -87,7 +202,68 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Delete City
+/**
+ * @swagger
+ * /api/cities/{id}:
+ *   delete:
+ *     summary: Delete a city
+ *     description: Deletes a city record by its ID
+ *     tags: [Cities]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: City ID
+ *         example: cjld2cjxh0000qzrmn831i7rn
+ *     responses:
+ *       200:
+ *         description: City deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       example: cjld2cjxh0000qzrmn831i7rn
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *       404:
+ *         description: City not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ *             examples:
+ *               cityNotFound:
+ *                 summary: City not found
+ *                 value:
+ *                   success: false
+ *                   error: "City not found"
+ *                   timestamp: "2023-01-01T00:00:00.000Z"
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ *             examples:
+ *               deleteError:
+ *                 summary: Delete failed
+ *                 value:
+ *                   success: false
+ *                   error: "Failed to delete city"
+ *                   timestamp: "2023-01-01T00:00:00.000Z"
+ */
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -118,7 +294,66 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// Search Cities (with external data integration)
+/**
+ * @swagger
+ * /api/cities/search:
+ *   get:
+ *     summary: Search cities with external data
+ *     description: Searches for cities by name and enriches results with country and weather data from external APIs
+ *     tags: [Cities]
+ *     parameters:
+ *       - in: query
+ *         name: name
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: City name to search for
+ *         example: New York
+ *     responses:
+ *       200:
+ *         description: Search results with enriched data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/CitySearchResult'
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *       400:
+ *         description: Missing or invalid query parameter
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ *             examples:
+ *               missingName:
+ *                 summary: Missing name parameter
+ *                 value:
+ *                   success: false
+ *                   error: "City name is required"
+ *                   timestamp: "2023-01-01T00:00:00.000Z"
+ *       500:
+ *         description: Server error during search
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ *             examples:
+ *               searchError:
+ *                 summary: Search failed
+ *                 value:
+ *                   success: false
+ *                   error: "Search failed"
+ *                   timestamp: "2023-01-01T00:00:00.000Z"
+ */
 router.get('/search', async (req, res) => {
   try {
     const { name } = req.query;

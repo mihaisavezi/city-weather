@@ -3,22 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { cityApi } from '@/services/cityApi';
 import { CityForm } from '@/components/cities/CityForm';
 import { useQuery } from '@tanstack/react-query';
-import { queryKeys } from '@/services/cityApi';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-
-// Mock function to get city by ID (will be replaced with actual API call)
-const getCityById = async (id: string) => {
-  // This is a placeholder - in a real app, you would fetch from the API
-  return {
-    id,
-    name: 'Sample City',
-    state: 'Sample State',
-    country: 'Sample Country',
-    touristRating: 4,
-    dateEstablished: '2023-01-01T00:00:00.000Z',
-    estimatedPopulation: 1000000
-  };
-};
 
 export const Route = createFileRoute('/cities/edit/$id')({
   component: EditCity,
@@ -29,10 +14,10 @@ function EditCity() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   
-  // In a real app, you would fetch the actual city data
+  // Fetch the actual city data
   const { data: city, isLoading, error } = useQuery({
-    queryKey: ['city', id],
-    queryFn: () => getCityById(id),
+    queryKey: cityApi.queryKeys.city(id),
+    queryFn: () => cityApi.getCityById(id),
     enabled: !!id
   });
   
@@ -40,7 +25,7 @@ function EditCity() {
     mutationFn: (updates: any) => cityApi.updateCity(id, updates),
     onSuccess: () => {
       // Invalidate and refetch cities
-      queryClient.invalidateQueries({ queryKey: ['cities'] });
+      queryClient.invalidateQueries({ queryKey: cityApi.queryKeys.cities });
       navigate({ to: '/cities' });
     },
   });

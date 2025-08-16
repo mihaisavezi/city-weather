@@ -1,31 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
-import { cityApi, queryKeys } from '@/services/cityApi';
+import { cityApi } from '@/services/cityApi';
 import { CityCard } from '@/components/cities/CityCard';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-
-// Mock function to get city detail (will be replaced with actual API call)
-const getCityDetail = async (id: string) => {
-  // This is a placeholder - in a real app, you would fetch from the API
-  return {
-    id,
-    name: 'Sample City',
-    state: 'Sample State',
-    country: 'Sample Country',
-    touristRating: 4,
-    dateEstablished: '2023-01-01T00:00:00.000Z',
-    estimatedPopulation: 1000000,
-    countryCode2: 'SC',
-    countryCode3: 'SAM',
-    currencyCode: 'SAM',
-    weather: {
-      temperature: 25,
-      description: 'Sunny',
-      humidity: 60,
-      windSpeed: 5
-    }
-  };
-};
 
 export const Route = createFileRoute('/cities/detail/$id')({
   component: CityDetail,
@@ -34,10 +11,10 @@ export const Route = createFileRoute('/cities/detail/$id')({
 function CityDetail() {
   const { id } = Route.useParams();
   
-  // In a real app, you would fetch the actual city data
+  // Fetch the actual city data
   const { data: city, isLoading, error } = useQuery({
-    queryKey: ['cityDetail', id],
-    queryFn: () => getCityDetail(id),
+    queryKey: cityApi.queryKeys.city(id),
+    queryFn: () => cityApi.getCityById(id),
     enabled: !!id
   });
 

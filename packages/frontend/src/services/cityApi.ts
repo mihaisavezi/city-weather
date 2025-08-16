@@ -32,6 +32,13 @@ async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T
   return data.data!;
 }
 
+// Query keys
+export const queryKeys = {
+  cities: ['cities'] as const,
+  city: (id: string) => ['city', id] as const,
+  search: (name: string) => ['cities', 'search', name] as const,
+};
+
 // API functions
 export const cityApi = {
   createCity: async (city: CreateCity): Promise<City> => {
@@ -57,10 +64,21 @@ export const cityApi = {
   searchCities: async (name: string): Promise<CitySearchResult[]> => {
     return apiRequest(`/cities/search?name=${encodeURIComponent(name)}`);
   },
-};
 
-// Query keys
-export const queryKeys = {
-  cities: ['cities'] as const,
-  search: (name: string) => ['cities', 'search', name] as const,
+  getAllCities: async (): Promise<CitySearchResult[]> => {
+    // Using search with empty string to get all cities
+    return apiRequest(`/cities/search?name=`);
+  },
+  
+  getCityById: async (id: string): Promise<CitySearchResult> => {
+    // Using search with a specific ID to get a single city
+    const cities = await apiRequest(`/cities/search?name=`);
+    const city = cities.find((c: CitySearchResult) => c.id === id);
+    if (!city) {
+      throw new Error('City not found');
+    }
+    return city;
+  },
+  
+  queryKeys
 };

@@ -1,44 +1,17 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { cityApi } from '@/services/cityApi';
 import { CityTable } from '@/components/cities/CityTable';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { Link } from '@tanstack/react-router';
-
-// Mock function to get all cities (will be replaced with actual API call)
-const getAllCities = async () => {
-  // This is a placeholder - in a real app, you would fetch from the API
-  return [
-    {
-      id: '1',
-      name: 'New York',
-      state: 'New York',
-      country: 'United States',
-      touristRating: 4,
-      dateEstablished: '1624-01-01T00:00:00.000Z',
-      estimatedPopulation: 8336817
-    },
-    {
-      id: '2',
-      name: 'London',
-      state: 'England',
-      country: 'United Kingdom',
-      touristRating: 5,
-      dateEstablished: '43-01-01T00:00:00.000Z',
-      estimatedPopulation: 9648110
-    }
-  ];
-};
 
 export const Route = createFileRoute('/cities/')({
   component: Cities,
 });
 
 function Cities() {
-  // In a real app, you would fetch the actual cities data
   const { data: cities, isLoading, error } = useQuery({
     queryKey: ['cities'],
-    queryFn: getAllCities
+    queryFn: cityApi.getAllCities
   });
 
   return (
@@ -66,8 +39,8 @@ function Cities() {
         <CityTable 
           cities={cities} 
           showWeather={false}
-          onEdit={(city) => console.log('Edit city', city)}
-          onDelete={(id) => console.log('Delete city', id)}
+          onEdit={(city) => cityApi.updateCity(city.id, city)}
+          onDelete={(id) => cityApi.deleteCity(id)}
         />
       )}
       

@@ -1,0 +1,33 @@
+# Use Node.js 20 LTS as the base image
+FROM node:20-alpine
+
+# Set the working directory
+WORKDIR /app
+
+# Install pnpm globally
+RUN npm install -g pnpm
+
+# Copy package files from root
+COPY package.json pnpm-lock.yaml ./
+# Copy backend package files
+COPY packages/backend/package.json ./packages/backend/package.json
+# Copy shared package files
+COPY packages/shared/package.json ./packages/shared/package.json
+
+# Install root dependencies
+RUN pnpm install --no-frozen-lockfile
+
+# Copy the entire project structure
+COPY . .
+
+# Change to the backend directory (where drizzle.config.ts is located)
+WORKDIR /app/packages/backend
+
+# Install backend dependencies including dev dependencies (this should install drizzle-kit)
+RUN pnpm install --no-frozen-lockfile
+
+# Expose the port Drizzle Studio runs on
+EXPOSE 3002
+
+# Command to run Drizzle Studio
+CMD ["npx", "drizzle-kit", "studio", "--port", "3002", "--host", "0.0.0.0", "--verbose"]

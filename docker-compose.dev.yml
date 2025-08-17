@@ -5,7 +5,6 @@ services:
       dockerfile: packages/backend/Dockerfile.dev
     ports:
       - '3001:3001'
-      - '4983:4983'
     environment:
       - NODE_ENV=development
       - PORT=3001
@@ -39,8 +38,22 @@ services:
     networks:
       - app-network
 
+  drizzle-gateway:
+    image: ghcr.io/drizzle-team/gateway:latest
+    ports:
+      - '4983:4983'
+    environment:
+      - PORT=4983
+      - STORE_PATH=./app
+    volumes:
+      - drizzle-gateway:/app
+      - ./packages/backend/data/cities.db:/app/cities.db
+    networks:
+      - app-network
+
 volumes:
   backend_data:
+  drizzle-gateway:
 
 networks:
   app-network:

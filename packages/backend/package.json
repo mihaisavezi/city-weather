@@ -18,11 +18,11 @@
   },
   "dependencies": {
     "@city-weather-deloitte/shared": "workspace:*",
+    "@libsql/client": "^0.15.11",
     "@paralleldrive/cuid2": "^2.2.2",
-    "better-sqlite3": "^12.2.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "drizzle-orm": "^0.29.0",
+    "drizzle-orm": "^0.44.4",
     "express": "^4.18.2",
     "helmet": "^7.1.0",
     "zod": "^3.25.76"
@@ -35,7 +35,8 @@
     "@types/node": "^20.10.0",
     "@types/supertest": "^2.0.16",
     "@types/swagger-ui-express": "^4.1.6",
-    "drizzle-kit": "^0.20.0",
+    "better-sqlite3": "^12.2.0",
+    "drizzle-kit": "^0.20.18",
     "node-gyp": "^11.3.0",
     "supertest": "^6.3.3",
     "swagger-jsdoc": "^6.2.8",

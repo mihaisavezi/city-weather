@@ -33,6 +33,10 @@ else
   echo "Database already seeded, skipping..."
 fi
 
+# Start Drizzle Studio in the background
+echo "Starting Drizzle Studio..."
+pnpm db:studio --verbose --host 0.0.0.0 &
+
 # Start the application
 echo "Starting the application..."
 exec pnpm dev

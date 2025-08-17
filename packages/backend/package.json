@@ -19,7 +19,7 @@
   "dependencies": {
     "@city-weather-deloitte/shared": "workspace:*",
     "@paralleldrive/cuid2": "^2.2.2",
-    "better-sqlite3": "^9.2.0",
+    "better-sqlite3": "^12.2.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "drizzle-orm": "^0.29.0",

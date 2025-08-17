@@ -1,12 +1,11 @@
-version: '3.8'
-
 services:
   backend:
     build:
       context: .
       dockerfile: packages/backend/Dockerfile
     ports:
-      - "3001:3001"
+      - '3001:3001'
+      - '4983:4983'
     environment:
       - NODE_ENV=production
       - PORT=3001
@@ -22,7 +21,7 @@ services:
       context: .
       dockerfile: packages/frontend/Dockerfile
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=production
     working_dir: /app/packages/frontend

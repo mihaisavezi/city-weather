@@ -27,7 +27,7 @@ build/
 Thumbs.db
 
 # Docker
-.dockerignore
+# .dockerignore
 
 # Scripts
 scripts/*.log

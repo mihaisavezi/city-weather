@@ -46,4 +46,4 @@ RUN mkdir -p /tmp && chmod 777 /tmp
 EXPOSE 3001
 
 # Start the development server (running as root for development)
-CMD ["pnpm", "dev"]
+CMD ["sh", "-c", "./scripts/init-db.sh"]

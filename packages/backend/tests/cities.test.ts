@@ -46,7 +46,7 @@ describe('Cities API', () => {
       .expect(400);
 
     expect(response.body.success).toBe(false);
-    expect(response.body.error).toContain('required');
+    expect(response.body.error).toBe('Invalid input data provided.');
   });
 
   it('should get all cities with cursor-based pagination', async () => {

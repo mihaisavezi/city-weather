@@ -12,9 +12,10 @@ export default defineConfig({
     },
   },
   server: {
+    port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost:3001',
+        target: 'http://backend:3001', // Use the docker service name
         changeOrigin: true,
       },
     },

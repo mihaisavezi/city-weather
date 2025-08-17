@@ -87,9 +87,12 @@ router.post('/', async (req, res) => {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
+    // Log the detailed error for debugging, but don't send it to the client.
+    console.error('Error creating city:', error);
     res.status(400).json({
       success: false,
-      error: error instanceof Error ? error.message : 'Invalid data',
+      // Send a generic error message to avoid leaking implementation details.
+      error: 'Invalid input data provided.',
       timestamp: new Date().toISOString(),
     });
   }
@@ -204,9 +207,12 @@ router.put('/:id', async (req, res) => {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
+    // Log the detailed error for debugging
+    console.error(`Error updating city ${req.params.id}:`, error);
     res.status(400).json({
       success: false,
-      error: error instanceof Error ? error.message : 'Invalid data',
+      // Send a generic error message
+      error: 'Invalid input data provided.',
       timestamp: new Date().toISOString(),
     });
   }

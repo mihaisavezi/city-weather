@@ -25,3 +25,23 @@ build/
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# Docker
+.dockerignore
+
+# Scripts
+scripts/*.log
+scripts/*.tmp
+scripts/*.bak
+
+# Database
+data/
+*.sqlite
+
+# Drizzle
+drizzle/
+.migration_complete
+.seed_complete
+
+# Health check files
+health.json

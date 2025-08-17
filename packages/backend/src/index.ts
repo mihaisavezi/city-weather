@@ -1,14 +1,13 @@
-import cors from 'cors';
 import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import helmet from 'helmet';
+import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 
 import swaggerSpec from './config/swagger.js';
-import cityRoutes from './routes/cities.js';
-
-// Load environment variables
-dotenv.config();
+import citiesRouter from './routes/cities.js';
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -18,37 +17,35 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    service: 'city-weather-backend',
+  });
+});
+
+// Routes
+app.use('/api/cities', citiesRouter);
+
 // Swagger UI
 app.use(
   '/api-docs',
   swaggerUi.serve,
   swaggerUi.setup(swaggerSpec, {
-    explorer: true,
-    swaggerOptions: {
-      deepLinking: false,
-    },
-    customCss: '.swagger-ui .topbar { display: none }',
+    deepLinking: false,
     customSiteTitle: 'City Weather API Documentation',
   })
 );
 
-// Routes
-app.use('/api/cities', cityRoutes);
-
-// Health check
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
-// Serve swagger spec
-app.get('/api-docs.json', (req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  res.send(swaggerSpec);
-});
-
+// Start server
 app.listen(port, () => {
-  console.log(` Server running on port ${port}`);
+  console.log(`Server running on port ${port}`);
   console.log(
-    ` API Documentation available at http://localhost:${port}/api-docs`
+    `API Documentation available at http://localhost:${port}/api-docs`
+  );
+  console.log(
+    `Health check endpoint available at http://localhost:${port}/health`
   );
 });

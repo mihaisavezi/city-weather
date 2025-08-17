@@ -1,0 +1,4 @@
+# Ignore any temporary files that might be created by the scripts
+*.log
+*.tmp
+*.bak

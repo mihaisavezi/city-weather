@@ -7,7 +7,8 @@ import {
   CursorPaginatedResponse,
 } from '@city-weather-deloitte/shared';
 
-const API_BASE = '/api';
+// Use environment variable for API base URL, default to '/api' for local development
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 // HTTP client wrapper
 async function apiRequest<T>(

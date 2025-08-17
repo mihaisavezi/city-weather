@@ -1,0 +1,49 @@
+# Use Node.js 20 LTS as the base image
+FROM node:20-alpine
+
+# Set the working directory
+WORKDIR /app
+
+# Install pnpm globally
+RUN npm install -g pnpm
+
+# Copy package files from root
+COPY package.json pnpm-lock.yaml ./
+
+# Copy backend package files
+COPY packages/backend/package.json ./packages/backend/package.json
+
+# Copy shared package files
+COPY packages/shared/package.json ./packages/shared/package.json
+
+# Install root dependencies
+RUN pnpm install --no-frozen-lockfile
+
+# Copy the entire project structure
+COPY . .
+
+# Change to the backend directory
+WORKDIR /app/packages/backend
+
+# Install backend dependencies including dev dependencies
+RUN pnpm install --no-frozen-lockfile
+
+# Create data directory and set permissions
+RUN mkdir -p ./data
+RUN chmod 777 ./data
+
+# Copy the init script
+COPY packages/backend/scripts/init-db.sh ./scripts/init-db.sh
+RUN chmod +x ./scripts/init-db.sh
+
+# Set environment variables for tsx
+ENV TMPDIR=/tmp
+
+# Create tmp directory with proper permissions
+RUN mkdir -p /tmp && chmod 777 /tmp
+
+# Expose the port the app runs on
+EXPOSE 3001
+
+# Start the development server (running as root for development)
+CMD ["pnpm", "dev"]

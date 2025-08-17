@@ -1,22 +1,13 @@
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 
-import * as schema from './schema.js';
+import { cities } from './schema';
 
-const sqlite = new Database('./dev.db', {
-  // verbose: console.log // Uncomment for debugging
-});
+// For Docker deployment, we'll use a consistent path for the SQLite database
+const databasePath = process.env.DATABASE_URL || './data/cities.db';
 
-// Enable WAL mode for better performance
-sqlite.pragma('journal_mode = WAL');
-
-export const db = drizzle(sqlite, { schema });
-
-// Graceful shutdown
-process.on('exit', () => sqlite.close());
-process.on('SIGHUP', () => process.exit(128 + 1));
-process.on('SIGINT', () => process.exit(128 + 2));
-process.on('SIGTERM', () => process.exit(128 + 15));
+const sqlite = new Database(databasePath);
+export const db = drizzle(sqlite, { schema: { cities } });
 
 // Graceful shutdown
 process.on('exit', () => sqlite.close());

@@ -1,0 +1,44 @@
+# Use Node.js 20 LTS as the base image
+FROM node:20-alpine
+
+# Set the working directory
+WORKDIR /app
+
+# Install pnpm globally
+RUN npm install -g pnpm
+
+# Copy package files from root
+COPY package.json pnpm-lock.yaml ./
+
+# Copy frontend package files
+COPY packages/frontend/package.json ./packages/frontend/package.json
+
+# Copy shared package files
+COPY packages/shared/package.json ./packages/shared/package.json
+
+# Install root dependencies
+RUN pnpm install --no-frozen-lockfile --production=false
+
+# Copy the entire project structure
+COPY . .
+
+# Change to the frontend directory
+WORKDIR /app/packages/frontend
+
+# Install frontend dependencies including dev dependencies
+RUN pnpm install --no-frozen-lockfile --production=false
+
+# Create tmp directory with proper permissions
+RUN mkdir -p /tmp && chmod 777 /tmp
+
+# Set environment variables for tanstack router
+ENV TANSTACK_ROUTER_DISABLE_WARN=true
+
+# Create .tanstack directory with proper permissions
+RUN mkdir -p .tanstack && chmod 777 .tanstack
+
+# Expose the port the app runs on
+EXPOSE 3000
+
+# Start the development server (running as root for development)
+CMD ["pnpm", "dev"]
